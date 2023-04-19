@@ -12,7 +12,7 @@ keys = list(scores.keys())
 values = list(scores.values())
 
 # Open the CSV file for writing
-with open('C:\\gitRepos\\Audiometric-Testing-Interface\\output.csv', 'w', newline='') as csvfile:
+with open('C:\\gitRepos\\Audiometric-Testing-Interface\\output-data.csv', 'w', newline='') as csvfile:
 
     # Create a writer object
     writer = csv.writer(csvfile)
@@ -28,7 +28,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Read the CSV file into a Pandas DataFrame
-df = pd.read_csv('C:\\gitRepos\\Audiometric-Testing-Interface\\output.csv')
+df = pd.read_csv('C:\\gitRepos\\Audiometric-Testing-Interface\\output-data.csv')
 fig = plt.figure(figsize=(10,6))
 
 # fig = plt.figure(figsize=(15, 20))
@@ -43,7 +43,7 @@ ax.set_ylim(-25, 30)
 ax.axhline(y=25, linestyle='--', color='gray')
 
 # Add text to the right of the horizontal line
-ax.text(x=-1800, y=25, s='Beginning of hearing loss', va='center', ha='left', fontsize=6)
+ax.text(x=775, y=25, s='Beginning of hearing loss', va='center', ha='left', fontsize=6)
 
 
 # Set the x- and y-axis labels
@@ -66,5 +66,5 @@ ax.invert_yaxis()
 # plt.figure(fig)
 plt.show()
 
-plt.savefig('C:\\gitRepos\\Audiometric-Testing-Interface\\audiogram.png')
+fig.savefig('C:\\gitRepos\\Audiometric-Testing-Interface\\audiogram.png')
 
