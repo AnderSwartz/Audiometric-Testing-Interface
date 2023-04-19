@@ -24,7 +24,7 @@ set font_size 18
 set font_italic no
 set font_family mono
 set font_bold no
-set experiment_path "C:/Downloads/audiometric_testing"
+set experiment_path "C:\\gitRepos\\Audiometric-Testing-Interface"
 set disable_garbage_collection yes
 set description "The main experiment item"
 set coordinates uniform
@@ -60,7 +60,7 @@ define sequence experiment
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
 	run Instructions always
-	run new_inline_script always
+	run inline_script always
 
 define notepad getting_started
 	__note__
@@ -76,7 +76,7 @@ define notepad getting_started
 	__end__
 	set description "A simple notepad to document your experiment. This plug-in does nothing."
 
-define inline_script new_inline_script
+define inline_script inline_script
 	set description "Executes Python code"
 	___run__
 	from openexp.canvas import Canvas
@@ -146,6 +146,8 @@ define inline_script new_inline_script
 	my_canvas.show()
 	clock.sleep(1000)
 	
+	mixer.init()
+	
 	for freq in freqs:
 	    
 	    hits = {}
@@ -165,15 +167,23 @@ define inline_script new_inline_script
 	    attempts[-5] = 0
 	    while (prev_hit and attempts[amp+10] < 3) or (prev_hit and attempts[amp+10] >= 3 and hits[amp+10] / attempts[amp+10] < .5) or (not prev_hit and attempts[amp-5] < 3) or (not prev_hit and attempts[amp-5] >= 3 and hits[amp-5] / attempts[amp-5] < .5):
 	        prev_hit = False
+	       
+	        if amp <= 0:
+	            prefix = 'm'
+	        else:
+	            prefix = 'p'
+	        if abs(amp) < 10:
+	            str_amp = '0' + str(abs(amp))
+	        else:
+	            str_amp = str(abs(amp))
+	            
 	        
-	        mixer.init()
 	        
-	        
-	        sound_path = 'C:\\Downloads\\audiometric_testing\\stimuli\\'+str(freq)+'hz'+str(amp)+'db.wav'
+	        sound_path ='Z:\\Lab_Members\\Ryan\\OpenAudiometer\\stimuli\\' + str(freq) + '_'+ prefix + str_amp + '.wav'
+	        # sound_path = 'C:\\Downloads\\audiometric_testing\\stimuli\\'+str(freq)+'hz'+str(amp)+'db.wav'
 	        # sound_file = 'C:\\Downloads\\audiometric_testing\\250Hz_44100Hz_16bit_05sec.mp3'
 	        sound = mixer.Sound(sound_path)
-	        # mixer.music.load(sound_file)
-	        # mixer.music.play()
+	       
 	        sound.play()
 	        
 	        my_canvas = Canvas(exp)
@@ -186,7 +196,7 @@ define inline_script new_inline_script
 	        clock.sleep(1000)
 	    
 	        
-	        #use key '1' instead?
+	        
 	        my_keyboard = Keyboard(keylist=['5'], timeout=3000)
 	        user_input, end_time = my_keyboard.get_key()
 	        
@@ -199,7 +209,7 @@ define inline_script new_inline_script
 	                attempts[amp] +=1
 	            else:
 	                attempts[amp] =1
-	        if user_input == "y":
+	        if user_input == "5":
 	            if not new_ascending_presentation:
 	                if amp in hits:
 	                    hits[amp] += 1
@@ -241,14 +251,141 @@ define inline_script new_inline_script
 	        scores[str(freq)+"hz"] = str(amp-5)+"db"
 	    print(scores)
 	    
-	    
-	# print(scores)
-	log.write(scores)
+	import csv
 	
+	
+	# Create a list of the keys and values in the dictionary
+	keys = list(scores.keys())
+	values = list(scores.values())
+	
+	# Open the CSV file for writing
+	with open('C:\\gitRepos\\Audiometric-Testing-Interface\\output.csv', 'w', newline='') as csvfile:
+	
+	    # Create a writer object
+	    writer = csv.writer(csvfile)
+	
+	    # Write the header row
+	    writer.writerow(['Frequency', 'Amplitude'])
+	
+	    # Write the data rows
+	    for i in range(len(keys)):
+	        writer.writerow([keys[i][:-2], values[i]])
+	
+	import pandas as pd
+	import matplotlib.pyplot as plt
+	
+	# Read the CSV file into a Pandas DataFrame
+	df = pd.read_csv('C:\\gitRepos\\Audiometric-Testing-Interface\\output.csv')
+	fig = plt.figure(figsize=(10,6))
+	
+	# fig = plt.figure(figsize=(15, 20))
+	# Plot the data as a scatter plot
+	ax = plt.gca()
+	ax.scatter(df['Frequency'], df['Amplitude'])
+	ax.set_ylabel('Amplitude (dB)')
+	ax.set_xlabel('Frequency (Hz)')
+	ax.xaxis.set_label_coords(.5, 1.06)
+	ax.set_ylim(-25, 30)
+	
+	ax.axhline(y=25, linestyle='--', color='gray')
+	
+	# Add text to the right of the horizontal line
+	ax.text(x=-1800, y=25, s='Beginning of hearing loss', va='center', ha='left', fontsize=6)
+	
+	
+	# Set the x- and y-axis labels
+	# plt.xlabel('Frequency (Hz)')
+	# plt.xaxis.set_label_coords(.5, 1)
+	# x_label = plt.gca().xaxis.get_label()
+	# x_label.set_position((0.5, 1.08))
+	# x_label.set_y(1.05)
+	# plt.ylabel('Amplitude (dB HL)')
+	
+	# Set the plot title
+	plt.title('Audiogram',y=1.1)
+	plt.tick_params(axis='x', which='both', top=True)
+	ax.xaxis.set_ticks_position('top')
+	ax.xaxis.set_label_position('top')
+	ax.invert_yaxis()
+	# Show the plot
+	
+	
+	# plt.figure(fig)
+	plt.show()
+	
+	plt.savefig('C:\\gitRepos\\Audiometric-Testing-Interface\\audiogram.png')
 	
 	    
 	
 	       
+	__end__
+	set _prepare ""
+
+define inline_script new_inline_script
+	set description "Executes Python code"
+	set _run ""
+	set _prepare ""
+
+define inline_script new_inline_script_1
+	set description "Executes Python code"
+	___run__
+	scores = {'1000hz':10,'2000hz':15}
+	# for score in scores:
+	#     log.write(score[:-2],str(scores[score]))
+	    
+	# Import the necessary modules
+	import csv
+	
+	
+	# Create a list of the keys and values in the dictionary
+	keys = list(scores.keys())
+	values = list(scores.values())
+	
+	# Open the CSV file for writing
+	with open('C:\\gitRepos\\Audiometric-Testing-Interface\\output.csv', 'w', newline='') as csvfile:
+	
+	    # Create a writer object
+	    writer = csv.writer(csvfile)
+	
+	    # Write the header row
+	    writer.writerow(['Frequency', 'Amplitude'])
+	
+	    # Write the data rows
+	    for i in range(len(keys)):
+	        writer.writerow([keys[i][:-2], values[i]])
+	
+	import pandas as pd
+	import matplotlib.pyplot as plt
+	
+	# Read the CSV file into a Pandas DataFrame
+	df = pd.read_csv('C:\\gitRepos\\Audiometric-Testing-Interface\\output.csv')
+	
+	# Plot the data as a scatter plot
+	fig, ax = plt.subplots()
+	ax.scatter(df['Frequency'], df['Amplitude'])
+	ax.set_ylabel('Amplitude (dB)')
+	ax.set_xlabel('Frequency (Hz)')
+	ax.xaxis.set_label_coords(.5, 1.04)
+	
+	
+	# Set the x- and y-axis labels
+	# plt.xlabel('Frequency (Hz)')
+	# plt.xaxis.set_label_coords(.5, 1)
+	# x_label = plt.gca().xaxis.get_label()
+	# x_label.set_position((0.5, 1.08))
+	# x_label.set_y(1.05)
+	# plt.ylabel('Amplitude (dB HL)')
+	
+	# Set the plot title
+	plt.title('Audiogram',y=1.08)
+	plt.tick_params(axis='x', which='both', top=True)
+	ax.xaxis.set_ticks_position('top')
+	ax.xaxis.set_label_position('top')
+	# Show the plot
+	plt.figure(figsize=(10,6))
+	plt.show()
+	
+	plt.savefig('C:\\gitRepos\\Audiometric-Testing-Interface\\audiogram.png')
 	__end__
 	set _prepare ""
 
