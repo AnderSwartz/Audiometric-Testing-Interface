@@ -6,7 +6,6 @@
 scores = {'1000hz':5,'2000hz':10}
 import csv
 
-
 # Create a list of the keys and values in the dictionary
 keys = list(scores.keys())
 values = list(scores.values())

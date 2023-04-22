@@ -51,32 +51,80 @@ define form_text_display Instructions
 	widget 1 2 1 1 button text="[ok_text]"
 
 
-define inline_script MainAudiometricTestingPythonScript
+define inline_script audiogram_generation
 	set description "Executes Python code"
-	set _run ""
+	___run__
+	#If you want to test how the audiogram looks without running the whole experiments,
+	#use this practice data:
+	scores = {'1000hz':10,'2000hz':15,'3000hz':20,'4000hz':15,'5000hz':15,'6000hz':15,'7000hz':5,'8000hz':20,'9000hz':10,'10000hz':15,'500hz':15,'250hz':15}
+	
+	
+	import csv
+	
+	# Create a list of the keys and values in the dictionary
+	keys = list(scores.keys())
+	values = list(scores.values())
+	
+	# Open the CSV file for writing
+	with open('C:\\gitRepos\\Audiometric-Testing-Interface\\output-data.csv', 'w', newline='') as csvfile:
+	
+	    # Create a writer object
+	    writer = csv.writer(csvfile)
+	
+	    # Write the header row
+	    writer.writerow(['Frequency', 'Amplitude'])
+	
+	    # Write the data rows
+	    for i in range(len(keys)):
+	        writer.writerow([keys[i][:-2], values[i]])
+	
+	import pandas as pd
+	import matplotlib.pyplot as plt
+	
+	# Read the CSV file into a Pandas DataFrame
+	df = pd.read_csv('C:\\gitRepos\\Audiometric-Testing-Interface\\output-data.csv')
+	fig = plt.figure(figsize=(10,6))
+	
+	# fig = plt.figure(figsize=(15, 20))
+	# Plot the data as a scatter plot
+	ax = plt.gca()
+	ax.scatter(df['Frequency'], df['Amplitude'])
+	ax.set_ylabel('Amplitude (dB)')
+	ax.set_xlabel('Frequency (Hz)')
+	ax.xaxis.set_label_coords(.5, 1.06)
+	ax.set_ylim(-25, 30)
+	
+	ax.axhline(y=25, linestyle='--', color='gray')
+	
+	# Add text to the right of the horizontal line
+	ax.text(x=775, y=25, s='Beginning of hearing loss', va='center', ha='left', fontsize=6)
+	
+	
+	# Set the x- and y-axis labels
+	# plt.xlabel('Frequency (Hz)')
+	# plt.xaxis.set_label_coords(.5, 1)
+	# x_label = plt.gca().xaxis.get_label()
+	# x_label.set_position((0.5, 1.08))
+	# x_label.set_y(1.05)
+	# plt.ylabel('Amplitude (dB HL)')
+	
+	# Set the plot title
+	plt.title('Audiogram',y=1.1)
+	plt.tick_params(axis='x', which='both', top=True)
+	ax.xaxis.set_ticks_position('top')
+	ax.xaxis.set_label_position('top')
+	ax.invert_yaxis()
+	# Show the plot
+	
+	
+	# plt.figure(fig)
+	plt.show()
+	
+	fig.savefig('C:\\gitRepos\\Audiometric-Testing-Interface\\audiogram.png')
+	__end__
 	set _prepare ""
 
-define sequence experiment
-	set flush_keyboard yes
-	set description "Runs a number of items in sequence"
-	run Instructions always
-	run new_inline_script_2 always
-
-define notepad getting_started
-	__note__
-	Welcome to OpenSesame 3.3 "Lentiform Loewenfeld"!
-	If you are new to OpenSesame, it is a good idea to follow one of the tutorials,
-	which can be found on the documentation site:
-	- <http://osdoc.cogsci.nl/>
-	You can also check out the examples. These can be opened via:
-	- Menu -> Tools -> Example experiments.
-	And feel free to ask for help on the forum:
-	- <http://forum.cogsci.nl/>
-	Have fun with OpenSesame!
-	__end__
-	set description "A simple notepad to document your experiment. This plug-in does nothing."
-
-define inline_script inline_script
+define inline_script audiometric_testing
 	set description "Executes Python code"
 	___run__
 	from openexp.canvas import Canvas
@@ -246,229 +294,16 @@ define inline_script inline_script
 	        #     print(not prev_hit and attempts[amp-5] < 3)
 	        #     print(not prev_hit and attempts[amp-5] >= 3 and hits[amp-5] / attempts[amp-5] < .5)
 	    if prev_hit:
-	        scores[str(freq)+"hz"] = str(amp+10)+"db"
+	        scores[str(freq)+"hz"] = amp+10
 	    else:
-	        scores[str(freq)+"hz"] = str(amp-5)+"db"
+	        scores[str(freq)+"hz"] = amp-5
 	    print(scores)
-	
-	#saving the data (scores)
-	
-	import csv
-	
-	# Create a list of the keys and values in the dictionary
-	keys = list(scores.keys())
-	values = list(scores.values())
-	
-	# Open the CSV file for writing
-	with open('C:\\gitRepos\\Audiometric-Testing-Interface\\output-data.csv', 'w', newline='') as csvfile:
-	
-	    # Create a writer object
-	    writer = csv.writer(csvfile)
-	
-	    # Write the header row
-	    writer.writerow(['Frequency', 'Amplitude'])
-	
-	    # Write the data rows
-	    for i in range(len(keys)):
-	        writer.writerow([keys[i][:-2], values[i]])
-	        
-	#creating audiogram from the csv file
-	
-	import pandas as pd
-	import matplotlib.pyplot as plt
-	
-	# Read the CSV file into a Pandas DataFrame
-	df = pd.read_csv('C:\\gitRepos\\Audiometric-Testing-Interface\\output-data.csv')
-	fig = plt.figure(figsize=(14,7))
-	
-	# fig = plt.figure(figsize=(15, 20))
-	# Plot the data as a scatter plot
-	ax = plt.gca()
-	ax.scatter(df['Frequency'], df['Amplitude'])
-	ax.set_ylabel('Amplitude (dB)')
-	ax.set_xlabel('Frequency (Hz)')
-	ax.xaxis.set_label_coords(.5, 1.06)
-	ax.set_ylim(-25, 30)
-	
-	ax.axhline(y=25, linestyle='--', color='gray')
-	
-	# Add text to the right of the horizontal line
-	ax.text(x=-1800, y=25, s='Beginning of hearing loss', va='center', ha='left', fontsize=8)
-	
-	
-	# Set the x- and y-axis labels
-	# plt.xlabel('Frequency (Hz)')
-	# plt.xaxis.set_label_coords(.5, 1)
-	# x_label = plt.gca().xaxis.get_label()
-	# x_label.set_position((0.5, 1.08))
-	# x_label.set_y(1.05)
-	# plt.ylabel('Amplitude (dB HL)')
-	
-	# Set the plot title
-	plt.title('Audiogram',y=1.1)
-	plt.tick_params(axis='x', which='both', top=True)
-	ax.xaxis.set_ticks_position('top')
-	ax.xaxis.set_label_position('top')
-	ax.invert_yaxis()
-	# Show the plot
-	
-	# plt.figure(fig)
-	plt.show()
-	
-	plt.savefig('C:\\gitRepos\\Audiometric-Testing-Interface\\audiogram.png')
-	
-	    
-	
-	       
 	__end__
 	set _prepare ""
 
-define inline_script new_inline_script
-	set description "Executes Python code"
-	set _run ""
-	set _prepare ""
-
-define inline_script new_inline_script_1
-	set description "Executes Python code"
-	___run__
-	scores = {'1000hz':10,'2000hz':15}
-	# for score in scores:
-	#     log.write(score[:-2],str(scores[score]))
-	    
-	# Import the necessary modules
-	import csv
-	
-	
-	# Create a list of the keys and values in the dictionary
-	keys = list(scores.keys())
-	values = list(scores.values())
-	
-	# Open the CSV file for writing
-	with open('C:\\gitRepos\\Audiometric-Testing-Interface\\output.csv', 'w', newline='') as csvfile:
-	
-	    # Create a writer object
-	    writer = csv.writer(csvfile)
-	
-	    # Write the header row
-	    writer.writerow(['Frequency', 'Amplitude'])
-	
-	    # Write the data rows
-	    for i in range(len(keys)):
-	        writer.writerow([keys[i][:-2], values[i]])
-	
-	import pandas as pd
-	import matplotlib.pyplot as plt
-	
-	# Read the CSV file into a Pandas DataFrame
-	df = pd.read_csv('C:\\gitRepos\\Audiometric-Testing-Interface\\output.csv')
-	
-	# Plot the data as a scatter plot
-	fig, ax = plt.subplots()
-	ax.scatter(df['Frequency'], df['Amplitude'])
-	ax.set_ylabel('Amplitude (dB)')
-	ax.set_xlabel('Frequency (Hz)')
-	ax.xaxis.set_label_coords(.5, 1.04)
-	
-	
-	# Set the x- and y-axis labels
-	# plt.xlabel('Frequency (Hz)')
-	# plt.xaxis.set_label_coords(.5, 1)
-	# x_label = plt.gca().xaxis.get_label()
-	# x_label.set_position((0.5, 1.08))
-	# x_label.set_y(1.05)
-	# plt.ylabel('Amplitude (dB HL)')
-	
-	# Set the plot title
-	plt.title('Audiogram',y=1.08)
-	plt.tick_params(axis='x', which='both', top=True)
-	ax.xaxis.set_ticks_position('top')
-	ax.xaxis.set_label_position('top')
-	# Show the plot
-	plt.figure(figsize=(10,6))
-	plt.show()
-	
-	plt.savefig('C:\\gitRepos\\Audiometric-Testing-Interface\\audiogram.png')
-	__end__
-	set _prepare ""
-
-define inline_script new_inline_script_2
-	set description "Executes Python code"
-	___run__
-	scores = {'1000hz':5,'2000hz':10}
-	import csv
-	
-	
-	# Create a list of the keys and values in the dictionary
-	keys = list(scores.keys())
-	values = list(scores.values())
-	
-	# Open the CSV file for writing
-	with open('C:\\gitRepos\\Audiometric-Testing-Interface\\output-data.csv', 'w', newline='') as csvfile:
-	
-	    # Create a writer object
-	    writer = csv.writer(csvfile)
-	
-	    # Write the header row
-	    writer.writerow(['Frequency', 'Amplitude'])
-	
-	    # Write the data rows
-	    for i in range(len(keys)):
-	        writer.writerow([keys[i][:-2], values[i]])
-	
-	import pandas as pd
-	import matplotlib.pyplot as plt
-	
-	# Read the CSV file into a Pandas DataFrame
-	df = pd.read_csv('C:\\gitRepos\\Audiometric-Testing-Interface\\output-data.csv')
-	fig = plt.figure(figsize=(15,8))
-	
-	# fig = plt.figure(figsize=(15, 20))
-	# Plot the data as a scatter plot
-	ax = plt.gca()
-	ax.scatter(df['Frequency'], df['Amplitude'])
-	ax.set_ylabel('Amplitude (dB)')
-	ax.set_xlabel('Frequency (Hz)')
-	ax.xaxis.set_label_coords(.5, 1.06)
-	ax.set_ylim(-25, 30)
-	
-	ax.axhline(y=25, linestyle='--', color='gray')
-	
-	# Add text to the right of the horizontal line
-	ax.text(x=775, y=25, s='Beginning of hearing loss', va='center', ha='left', fontsize=6)
-	
-	
-	# Set the x- and y-axis labels
-	# plt.xlabel('Frequency (Hz)')
-	# plt.xaxis.set_label_coords(.5, 1)
-	# x_label = plt.gca().xaxis.get_label()
-	# x_label.set_position((0.5, 1.08))
-	# x_label.set_y(1.05)
-	# plt.ylabel('Amplitude (dB HL)')
-	
-	# Set the plot title
-	plt.title('Audiogram',y=1.1)
-	plt.tick_params(axis='x', which='both', top=True)
-	ax.xaxis.set_ticks_position('top')
-	ax.xaxis.set_label_position('top')
-	ax.invert_yaxis()
-	# Show the plot
-	
-	
-	# plt.figure(fig)
-	plt.show()
-	
-	fig.savefig('C:\\gitRepos\\Audiometric-Testing-Interface\\audiogram.png')
-	__end__
-	set _prepare ""
-
-define sketchpad new_sketchpad
-	set duration keypress
-	set description "Displays stimuli"
-
-define sketchpad welcome
-	set start_response_interval no
-	set reset_variables no
-	set duration keypress
-	set description "Displays stimuli"
-	draw textline center=1 color=white font_bold=no font_family=serif font_italic=no font_size=32 html=yes show_if=always text="OpenSesame 3.3 <i>Lentiform Loewenfeld</i>" x=-8 y=-32 z_index=0
+define sequence experiment
+	set flush_keyboard yes
+	set description "Runs a number of items in sequence"
+	run Instructions always
+	run audiogram_generation always
 
