@@ -58,7 +58,6 @@ define inline_script audiogram_generation
 	#use this practice data:
 	scores = {'1000hz':10,'2000hz':15,'3000hz':20,'4000hz':15,'5000hz':15,'6000hz':15,'7000hz':5,'8000hz':20,'9000hz':10,'10000hz':15,'500hz':15,'250hz':15}
 	
-	
 	import csv
 	
 	# Create a list of the keys and values in the dictionary
@@ -99,7 +98,6 @@ define inline_script audiogram_generation
 	# Add text to the right of the horizontal line
 	ax.text(x=775, y=25, s='Beginning of hearing loss', va='center', ha='left', fontsize=6)
 	
-	
 	# Set the x- and y-axis labels
 	# plt.xlabel('Frequency (Hz)')
 	# plt.xaxis.set_label_coords(.5, 1)
@@ -115,7 +113,6 @@ define inline_script audiogram_generation
 	ax.xaxis.set_label_position('top')
 	ax.invert_yaxis()
 	# Show the plot
-	
 	
 	# plt.figure(fig)
 	plt.show()
@@ -134,52 +131,50 @@ define inline_script audiometric_testing
 	mixer.init()
 	sound_file = 'C:\\Downloads\\audiometric_testing\\250Hz_44100Hz_16bit_05sec.mp3'
 	mixer.music.load(sound_file)
-	# print("a")
-	
-	# # Create a canvas object
-	# my_canvas = Canvas(exp)
-	
-	# my_canvas.text("testing")
 	
 	
-	# my_canvas.show()
-	# print("d")
+	#familiarization process
+	
+	my_canvas = Canvas(exp)
+	my_canvas.text("Starting familiarization procedure")
+	my_canvas.show()
+	clock.sleep(1000)
 	
 	
-	# clock.sleep(1000)
+	familiarization_hit = False
+	freq = 1000
+	amp = -20
+	str_amp = 20
+	prefix = "m"
 	
-	# # Import the necessary modules
+	while familiarization_hit != True:
+	    if amp <= 0:
+	            prefix = 'm'
+	    else:
+	        prefix = 'p'
+	    if abs(amp) < 10:
+	        str_amp = '0' + str(abs(amp))
+	    else:
+	        str_amp = str(abs(amp))
+	    
+	    sound_path ='Z:\\Lab_Members\\Ryan\\OpenAudiometer\\stimuli\\' + str(freq) + '_'+ prefix + str_amp + '.wav'
+	     
+	    sound = mixer.Sound(sound_path)
+	    sound.play()
+	    #wait for sound to finish playing (each should be 1 sec)
+	    clock.sleep(1000)
+	    
+	    my_keyboard = Keyboard(keylist=['5'], timeout=3000)
+	    user_input, end_time = my_keyboard.get_key()
+	    if user_input == "5":
+	        familiarization_hit = True
+	        # we want to start the actual trials 10db lower than where they hear it
+	        starting_amp = amp - 10  
+	    else:
+	        amp += 5
 	
 	
-	# # Initialize the mixer
-	# mixer.init()
 	
-	# # Load the sound file
-	# sound_file = 'C:\\Downloads\\audiometric_testing\\250Hz_44100Hz_16bit_05sec.mp3'
-	# mixer.music.load(sound_file)
-	
-	# # Play the sound
-	# mixer.music.play()
-	# # Import the necessary modules
-	# my_keyboard = Keyboard(keylist=['z', 'x'], timeout=1000)
-	# start_time = clock.time()
-	# key, end_time = my_keyboard.get_key()
-	# var.response = key
-	# var.response_time = end_time - start_time
-	
-	
-	# my_canvas = Canvas(exp)
-	
-	# my_canvas.text(key)
-	
-	
-	# my_canvas.show()
-	
-	# clock.sleep(1000)
-	
-	#This script contains the relavant OpenSesame commands
-	
-	#This script contains the relavant OpenSesame commands
 	
 	freqs = list(range(1000, 2001, 1000))
 	# freqs.append(500)
@@ -188,7 +183,7 @@ define inline_script audiometric_testing
 	
 	my_canvas = Canvas(exp)
 	
-	my_canvas.text("running prototype...")
+	my_canvas.text("Starting audiometric testing...")
 	
 	
 	my_canvas.show()
@@ -202,9 +197,9 @@ define inline_script audiometric_testing
 	    attempts = {}
 	    # print(hits)
 	    # print(attempts)
-	    hits[0] = 0 #probably dont need these anymore
-	    attempts[0] = 0
-	    amp = 0
+	    hits[starting_amp] = 0 #probably dont need these anymore
+	    attempts[starting_amp] = 0
+	    amp = starting_amp
 	    
 	    #This starts as False because we want to first trial to count
 	    new_ascending_presentation = False 
@@ -212,7 +207,7 @@ define inline_script audiometric_testing
 	    #dont want to count the next presentation as a hit or an attempt
 	
 	    prev_hit = False
-	    attempts[-5] = 0
+	    attempts[starting_amp-5] = 0
 	    while (prev_hit and attempts[amp+10] < 3) or (prev_hit and attempts[amp+10] >= 3 and hits[amp+10] / attempts[amp+10] < .5) or (not prev_hit and attempts[amp-5] < 3) or (not prev_hit and attempts[amp-5] >= 3 and hits[amp-5] / attempts[amp-5] < .5):
 	        prev_hit = False
 	       
@@ -225,8 +220,6 @@ define inline_script audiometric_testing
 	        else:
 	            str_amp = str(abs(amp))
 	            
-	        
-	        
 	        sound_path ='Z:\\Lab_Members\\Ryan\\OpenAudiometer\\stimuli\\' + str(freq) + '_'+ prefix + str_amp + '.wav'
 	        # sound_path = 'C:\\Downloads\\audiometric_testing\\stimuli\\'+str(freq)+'hz'+str(amp)+'db.wav'
 	        # sound_file = 'C:\\Downloads\\audiometric_testing\\250Hz_44100Hz_16bit_05sec.mp3'
@@ -243,8 +236,6 @@ define inline_script audiometric_testing
 	        #wait for sound to finish playing (each should be 1 sec)
 	        clock.sleep(1000)
 	    
-	        
-	        
 	        my_keyboard = Keyboard(keylist=['5'], timeout=3000)
 	        user_input, end_time = my_keyboard.get_key()
 	        
@@ -273,8 +264,6 @@ define inline_script audiometric_testing
 	            new_ascending_presentation = False
 	        if amp not in attempts:
 	            attempts[amp] = 0
-	            
-	            
 	            
 	        #wait between presentations 2 seconds +- 1 second
 	       
@@ -305,5 +294,6 @@ define sequence experiment
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
 	run Instructions always
+	run audiometric_testing always
 	run audiogram_generation always
 
