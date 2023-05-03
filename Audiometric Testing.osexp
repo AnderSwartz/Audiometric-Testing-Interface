@@ -213,7 +213,13 @@ define inline_script audiometric_testing
 	
 	    prev_hit = False
 	    attempts[starting_amp-5] = 0
+	    
+	    #since we already subtracted 10 from amp (if they hit) or added 5 (if they didn't')
+	    #I use amp+10 and amp-5
+	    #we also have to check even when the previous presentation did not receive a hit, such
+	    #as when it is their 3rd presentation at a given intensity and they hit the first two times
 	    while (prev_hit and attempts[amp+10] < 3) or (prev_hit and attempts[amp+10] >= 3 and hits[amp+10] / attempts[amp+10] < .5) or (not prev_hit and attempts[amp-5] < 3) or (not prev_hit and attempts[amp-5] >= 3 and hits[amp-5] / attempts[amp-5] < .5):
+	                           
 	        prev_hit = False
 	       
 	        if amp <= 0:
