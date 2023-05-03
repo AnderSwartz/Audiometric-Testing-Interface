@@ -120,7 +120,9 @@ define inline_script audiogram_generation
 	# Show the plot
 	
 	# plt.figure(fig)
-	plt.show()
+	
+	#we aren't allowed to show data to participants, so this is commented out for now
+	# plt.show()
 	
 	fig.savefig('C:\\gitRepos\\Audiometric-Testing-Interface\\audiogram.png')
 	__end__
@@ -215,13 +217,15 @@ define inline_script audiometric_testing
 	    attempts[starting_amp-5] = 0
 	    
 	    #since we already subtracted 10 from amp (if they hit) or added 5 (if they didn't')
-	    #I use amp+10 and amp-5
+	    #I use amp+10 and amp-5 to check if we need to keep going after the last presentation
 	    #we also have to check even when the previous presentation did not receive a hit, such
 	    #as when it is their 3rd presentation at a given intensity and they hit the first two times
 	    while (prev_hit and attempts[amp+10] < 3) or (prev_hit and attempts[amp+10] >= 3 and hits[amp+10] / attempts[amp+10] < .5) or (not prev_hit and attempts[amp-5] < 3) or (not prev_hit and attempts[amp-5] >= 3 and hits[amp-5] / attempts[amp-5] < .5):
 	                           
 	        prev_hit = False
 	       
+	       
+	       #Making sure the amplitude matches the name of the stimuli
 	        if amp <= 0:
 	            prefix = 'm'
 	        else:
@@ -238,8 +242,8 @@ define inline_script audiometric_testing
 	       
 	        sound.play()
 	        
+	        #Used for testing. Comment out when using
 	        my_canvas = Canvas(exp)
-	        
 	        my_canvas.text("Playing frequency "+str(freq)+  "hz at amplitude of " +str(amp) + "db")
 	        my_canvas.show()
 	        
@@ -247,13 +251,17 @@ define inline_script audiometric_testing
 	        #wait for sound to finish playing (each should be 1 sec)
 	        clock.sleep(1000) #not sure if this is necessary
 	    
+	        #give participant 3 seconds to hit 5 (the blue button)
 	        my_keyboard = Keyboard(keylist=['5'], timeout=3000)
 	        user_input, end_time = my_keyboard.get_key()
 	        
-	        my_canvas = Canvas(exp)
-	        my_canvas.text(user_input)
-	        my_canvas.show()
+	        #for testing - just shows if the user hit
+	        # my_canvas = Canvas(exp)
+	        # my_canvas.text(user_input)
+	        # my_canvas.show()
 	        
+	        #Need to keep track of whether the presentation of a stimuli is an "ascending presentation",
+	        #since we only count the ascending presentations towards hits and attempts
 	        if not new_ascending_presentation:
 	            if amp in attempts:
 	                attempts[amp] +=1
@@ -273,6 +281,10 @@ define inline_script audiometric_testing
 	                hits[amp] = 0
 	            amp += 5
 	            new_ascending_presentation = False
+	        
+	        #i think we need this because if they just hit on a descending presentation,
+	        #we dont want to count this for hits or attempt. But, the code in the while loop
+	        #checks attemps at amp. So we set this to 0 to avoid an error
 	        if amp not in attempts:
 	            attempts[amp] = 0
 	            
@@ -281,29 +293,20 @@ define inline_script audiometric_testing
 	        random_wait = random.randint(1000, 3000)
 	        clock.sleep(random_wait)
 	        
+	        #If we run out of stimuli, what should we do?
 	        if amp < -25:
+	            print("You win! You have the best hearing ever")
 	            pass
 	        elif amp > 75:
 	            pass
 	            
-	        
-	        # print(attempts)
-	        # print(hits)
-	        
-	        # print("prev_hit",prev_hit)
-	        # print("hits",hits)
-	        # print("attempts",attempts)
-	        # if(prev_hit):
-	        #     print(prev_hit and attempts[amp+10] < 3)
-	        #     print(prev_hit and attempts[amp+10] >= 3 and hits[amp+10] / attempts[amp+10] < .5)
-	        # else:
-	        #     print(not prev_hit and attempts[amp-5] < 3)
-	        #     print(not prev_hit and attempts[amp-5] >= 3 and hits[amp-5] / attempts[amp-5] < .5)
+	    
+	    #after we exit the while loop, we can keep track of what threshold was reached for that freq
 	    if prev_hit:
 	        scores[str(freq)+"hz"] = amp+10
 	    else:
 	        scores[str(freq)+"hz"] = amp-5
-	    print(scores)
+	    # print(scores)
 	__end__
 	set _prepare ""
 
